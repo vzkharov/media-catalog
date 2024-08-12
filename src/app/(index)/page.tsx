@@ -9,6 +9,10 @@ import styles from './styles.module.css'
 
 type SearchParams = { state?: string }
 
+const LIMIT = 9
+const MAX_ITEMS = 200
+const PAGES = Math.ceil(MAX_ITEMS / LIMIT)
+
 const SearchPage = async ({ searchParams }: { searchParams: SearchParams }) => {
 	const { state: rawState } = searchParams
 
@@ -24,11 +28,11 @@ const SearchPage = async ({ searchParams }: { searchParams: SearchParams }) => {
 			<div className={styles.media__list}>
 				<MediaList
 					{...state}
-					limit={9}
+					limit={LIMIT}
 				/>
 			</div>
 
-			<MediaPagination />
+			<MediaPagination total={PAGES} />
 		</>
 	)
 }

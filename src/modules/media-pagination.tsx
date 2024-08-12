@@ -1,9 +1,8 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
-
 import type { StyleProps } from '~/lib/types'
 
+import { usePaginationUtils } from '~/hooks/usePagination'
 import { useMediaFilterState } from '~/features/(media)/use-media-filter-state'
 
 import {
@@ -15,30 +14,21 @@ import {
 	PaginationPrevious,
 } from '~/components/ui/pagination'
 
-const DISPLAY_PAGES = 3
+type MediaPaginationProps = StyleProps & {
+	total: number
+}
 
-const MediaPagination = (props: StyleProps) => {
+const MediaPagination = ({ total, ...props }: MediaPaginationProps) => {
 	const [state, setState] = useMediaFilterState(0)
 
-	const pages = useMemo(() => {
-		const range = new Array(DISPLAY_PAGES + 1).fill(0).map((_, idx) => idx + state.page - 2)
+	const setPage = (newPage: number) => setState({ page: newPage })
 
-		if (state.page > 0) {
-			range.shift()
-		} else {
-			range.pop()
-		}
-
-		return range
-	}, [state.page])
-
-	const setCurrentPage = useCallback((newPage: number) => setState({ page: newPage }), [setState])
-
-	const next = useCallback(() => setCurrentPage(state.page + 1), [setCurrentPage, state.page])
-	const previos = useCallback(
-		() => state.page > 1 && setCurrentPage(state.page - 1),
-		[setCurrentPage, state.page]
-	)
+	const { next, previos, pages, isPrevios } = usePaginationUtils({
+		total,
+		displayPages: 3,
+		page: state.page,
+		onPageChange: setPage,
+	})
 
 	return (
 		<Pagination {...props}>
@@ -46,17 +36,17 @@ const MediaPagination = (props: StyleProps) => {
 				<PaginationItem>
 					<PaginationPrevious
 						onClick={previos}
-						aria-disabled={state.page <= 1}
+						aria-disabled={isPrevios}
 					/>
 				</PaginationItem>
 
 				{pages.map((page, idx) => (
 					<PaginationItem key={idx}>
 						<PaginationLink
-							onClick={() => setCurrentPage(page)}
+							onClick={() => setPage(page)}
 							isActive={page === state.page}
 						>
-							{page >= 1 ? page : '-'}
+							{page >= 1 && page <= total ? page : '-'}
 						</PaginationLink>
 					</PaginationItem>
 				))}
