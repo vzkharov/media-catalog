@@ -1,8 +1,10 @@
 'use client'
 
+import { useCallback, useMemo } from 'react'
+
 import type { StyleProps } from '~/lib/types'
 
-import { useMediaPagination } from '~/features/(media)/useMediaPagination'
+import { useMediaFilterState } from '~/features/(media)/use-media-filter-state'
 
 import {
 	Pagination,
@@ -13,11 +15,30 @@ import {
 	PaginationPrevious,
 } from '~/components/ui/pagination'
 
+const DISPLAY_PAGES = 3
+
 const MediaPagination = (props: StyleProps) => {
-	const [currentPage, { set, pages, isPrevious, next, previos }] = useMediaPagination({
-		defaultValue: 1,
-		displayPages: 3,
-	})
+	const [state, setState] = useMediaFilterState(0)
+
+	const pages = useMemo(() => {
+		const range = new Array(DISPLAY_PAGES + 1).fill(0).map((_, idx) => idx + state.page - 2)
+
+		if (state.page > 0) {
+			range.shift()
+		} else {
+			range.pop()
+		}
+
+		return range
+	}, [state.page])
+
+	const setCurrentPage = useCallback((newPage: number) => setState({ page: newPage }), [setState])
+
+	const next = useCallback(() => setCurrentPage(state.page + 1), [setCurrentPage, state.page])
+	const previos = useCallback(
+		() => state.page > 1 && setCurrentPage(state.page - 1),
+		[setCurrentPage, state.page]
+	)
 
 	return (
 		<Pagination {...props}>
@@ -25,15 +46,15 @@ const MediaPagination = (props: StyleProps) => {
 				<PaginationItem>
 					<PaginationPrevious
 						onClick={previos}
-						aria-disabled={!isPrevious}
+						aria-disabled={state.page <= 1}
 					/>
 				</PaginationItem>
 
 				{pages.map((page, idx) => (
 					<PaginationItem key={idx}>
 						<PaginationLink
-							onClick={() => set(page)}
-							isActive={page === currentPage}
+							onClick={() => setCurrentPage(page)}
+							isActive={page === state.page}
 						>
 							{page >= 1 ? page : '-'}
 						</PaginationLink>

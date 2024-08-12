@@ -1,30 +1,18 @@
 'use client'
 
-import { useCallback } from 'react'
-
 import { cn } from '~/lib/utils'
 import type { StyleProps } from '~/lib/types'
 
 import { mediaTypeConfig } from '~/config/media-type'
-import { useMediaFilterType } from '~/features/(media)/useMediaFilterType'
-import { useMediaPagination } from '~/features/(media)/useMediaPagination'
+
+import { useMediaFilterState } from '~/features/(media)/use-media-filter-state'
 
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 
 const NO_VALUE = ''
 
 const MediaFilterType = ({ style, className }: StyleProps) => {
-	const [_, { set }] = useMediaPagination()
-	const [filterType, setFilterType] = useMediaFilterType(NO_VALUE)
-
-	const handleChange = useCallback(
-		(value: string) => {
-			console.log(value)
-			setFilterType(value)
-			set(1)
-		},
-		[set, setFilterType]
-	)
+	const [state, setState] = useMediaFilterState(0)
 
 	return (
 		<div
@@ -32,8 +20,8 @@ const MediaFilterType = ({ style, className }: StyleProps) => {
 			className={cn('bg-muted rounded-md max-md:overflow-x-scroll', className)}
 		>
 			<Tabs
-				defaultValue={filterType}
-				onValueChange={handleChange}
+				defaultValue={state.type}
+				onValueChange={(value: string) => setState({ page: 1, type: value })}
 			>
 				<TabsList>
 					<TabsTrigger value={NO_VALUE}>All</TabsTrigger>
