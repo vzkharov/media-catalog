@@ -1,3 +1,5 @@
+import { convertRawState } from '~/features/(media)/use-media-filter-state/utils'
+
 import { MediaList } from '~/modules/media-list'
 import { MediaPagination } from '~/modules/media-pagination'
 import { MediaFilterType } from '~/modules/media-filter-type'
@@ -5,15 +7,12 @@ import { MediaSearchInput } from '~/modules/media-search-input'
 
 import styles from './styles.module.css'
 
-type SearchParams = { page?: number; type?: string; q?: string; limit?: number }
+type SearchParams = { state?: string }
 
 const SearchPage = async ({ searchParams }: { searchParams: SearchParams }) => {
-	const { q, type } = searchParams
+	const { state: rawState } = searchParams
 
-	const page = Number(searchParams?.page) || 1
-	const limit = Number(searchParams?.limit) || 9
-
-	const params = { q, type, page, limit }
+	const state = convertRawState(rawState)
 
 	return (
 		<>
@@ -23,7 +22,10 @@ const SearchPage = async ({ searchParams }: { searchParams: SearchParams }) => {
 			</div>
 
 			<div className={styles.media__list}>
-				<MediaList {...params} />
+				<MediaList
+					{...state}
+					limit={9}
+				/>
 			</div>
 
 			<MediaPagination />
