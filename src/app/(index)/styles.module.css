@@ -1,0 +1,7 @@
+.media__list {
+	@apply my-10 sm:my-12 min-h-[550px] sm:min-h-[646px];
+}
+
+.media__filters {
+	@apply flex flex-col md:flex-row gap-4;
+}
